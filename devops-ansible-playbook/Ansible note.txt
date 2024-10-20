@@ -1,0 +1,299 @@
+## ControlNode
+
+su root
+dhclient
+onboot=yes
+yum update -y
+yum install epel-release -y
+yum install net-tools
+
+ifconfig
+
+
+## ManagedNode 1 & 2
+su root
+
+dhclient
+onboot=yes
+yum update -y
+yum install net-tools
+
+ifconfig
+
+
+
+
+Yeniden başlatılınca terminale   ifconfig  komutunu yazınca eğer IP yoksa bunları çalıştır.
+
+dhclient
+onboot=yes
+yum install net-tools
+yum update -y
+
+
+
+
+
+
+## ControlNode
+su root
+
+yum install openssh-server -y
+
+systemctl status firewalld
+systemctl stop firewalld
+systemctl disable firewalld
+systemctl status firewalld
+
+ssh-keygen
+
+yum install ansible -y
+
+
+hostnamectl set-hostname control-node
+cat  /etc/hostname
+
+
+
+-----------
+Aşağıdaki komutu deneyeceğiz. Firewall açık kalıyor, sadece ssh a izin veriyor.
+
+sudo ufw allow openSSH / sudo ufw enable ya da sudo firewall-cmd --permanent --add-service=ssh / sudo firewall-cmd --reload 
+
+sanki böyle daha iyi olabilir gibi.(firewall ayarları için)
+----------
+
+
+
+## ManagedNode 1 
+su root
+
+
+hostnamectl set-hostname managed-node1
+cat  /etc/hostname
+
+
+systemctl status firewalld
+systemctl stop firewalld
+systemctl disable firewalld
+systemctl status firewalld
+
+reboot
+
+ssh-keygen
+
+
+
+
+
+
+
+
+
+
+## ManagedNode 2
+su root
+
+
+hostnamectl set-hostname managed-node2
+cat  /etc/hostname
+
+
+systemctl status firewalld
+systemctl stop firewalld
+systemctl disable firewalld
+systemctl status firewalld
+
+reboot
+
+ssh-keygen
+
+
+
+## ControlNode
+
+su root
+ssh mynode1@PUBLIC_IP
+exit
+
+su root
+ssh-copy-id mynode1@PUBLIC_IP
+exit
+
+su root
+ssh mynode1@PUBLIC_IP
+exit
+
+
+
+
+su root
+ssh mynode2@PUBLIC_IP
+exit
+
+su root
+ssh-copy-id mynode2@PUBLIC_IP
+exit
+
+su root
+ssh mynode2@PUBLIC_IP
+exit
+
+
+
+## ControlNode
+su root
+
+cd /root/.ssh
+
+cat known_hosts 
+
+
+
+
+
+
+### Ansible
+
+Ad-hoc Komutları
+
+ansible   [pattern]       -m [module]        -a "[module option]" 
+
+
+
+Config dosyamızın bulunduğu yer
+
+vi /etc/ansible/hosts
+
+
+[arge_nodes]
+PUBLIC_IP1
+PUBLIC_IP2
+PUBLIC_IP3
+PUBLIC_IP4
+PUBLIC_IP5
+PUBLIC_IP6
+PUBLIC_IP7
+PUBLIC_IP8
+
+[arge_node1]
+PUBLIC_IP1
+
+
+[arge_node2]
+PUBLIC_IP2
+
+
+
+
+
+[arge_teamlead_nodes]
+PUBLIC_IP4
+PUBLIC_IP5
+PUBLIC_IP6
+
+
+
+
+
+
+[nodes]
+192.168.123.140
+192.168.123.49
+
+[node1]
+192.168.123.140
+
+[node2]
+192.168.123.49
+
+
+ansible   [pattern]       -m [module]        -a "[module option]" 
+
+ansible                   -m   ping                  all
+
+ansible                   -m   ping                  arge_nodes
+
+
+
+ansible  -m   ping   all
+
+ansible  -m   ping   nodes 
+
+ansible  -m   ping   node1
+
+ansible  -m   ping   node2
+
+ansible  -m   ping   mysqlserver
+
+ansible  -m   ping   node35
+
+
+
+cat /etc/sudoers 
+
+
+ansible   [pattern]       -m [module]        -a "[module option]" 
+
+ansible    nodes          -m shell           -a "echo MY DEMO MESSAGE"
+
+
+
+## COPY FILE
+
+cat /etc/hosts
+
+ansible    nodes          -m copy            -a "src=/etc/hosts                 dest=/tmp/hosts"
+
+ansible    arge_nodes     -m copy            -a "src=/tmp/my-lesson-note.txt     dest=/tmp/myLessonNote.txt"
+
+ansible    arge_nodes     -m ansible.builtin.copy      -a "src=/tmp/my-lesson-note.txt     dest=/tmp/myLessonNote2.txt"
+
+
+
+## DELETE FILE
+
+
+cat /etc/ansible/hosts
+
+
+ansible    all     -m file          -a "dest=/tmp/myLessonNote.txt   state=absent"
+
+ansible    arge_nodes     -m file          -a "dest=/tmp/myLessonNote.txt   state=absent"
+
+
+ansible    arge_node2     -m file          -a "dest=/tmp/myLessonNote1000.txt   state=absent"
+
+ansible    arge_node2     -m file          -a "dest=/tmp/myLessonNote2.txt   state=absent"
+
+
+
+## COPY FOLDER
+
+mkdir myFolder
+
+cd myFolder
+
+touch myFile1.txt
+touch myFile2.txt
+touch myFile3.txt
+
+ls
+
+
+ansible    all           -m copy            -a "src=/tmp/myFolder     dest=/tmp"
+
+ansible    arge_node1           -m copy            -a "src=/tmp/myFolder     dest=/tmp"
+ansible    arge_node2           -m copy            -a "src=/tmp/myFolder     dest=/tmp"
+
+
+ansible    arge_nodes           -m copy            -a "src=/tmp/myFolder     dest=/tmp"
+
+
+
+
+## DELETE FOLDER
+
+ansible    all     -m file          -a "dest=/tmp/myFolder   state=directory"
+
+ansible    arge_nodes     -m file          -a "dest=/tmp/myFolder   state=directory"

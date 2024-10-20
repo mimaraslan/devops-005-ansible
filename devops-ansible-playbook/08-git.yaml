@@ -1,0 +1,15 @@
+- name : Install Demo 
+  hosts: arge_nodes
+  tasks:
+    - name: My Task Install git
+      yum: 
+        name: git
+        state: present       
+    - name: My Task Install nginx
+      yum: 
+        name: nginx
+        state: present  
+    - name: My Task Install httpd
+      yum: 
+        name: httpd
+        state: present        

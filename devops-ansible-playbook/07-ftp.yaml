@@ -1,0 +1,8 @@
+- name : Install Demo 
+  hosts: arge_nodes
+  tasks:
+    - name: My Task Install info
+      yum: 
+        name: ftp*
+        state: present
+  

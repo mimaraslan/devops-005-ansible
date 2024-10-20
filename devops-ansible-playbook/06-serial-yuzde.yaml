@@ -1,0 +1,13 @@
+- name : Serial Demo 
+  hosts: all
+  serial: 
+   - "10%"
+   - "20%"
+   - "70%"
+  tasks:
+    - name: My Task 1
+      command: "echo myTask 1"
+    - name: My Task 2
+      command: "echo myTask 2"
+    - name: My Task 3
+      command: "echo myTask 3"  
